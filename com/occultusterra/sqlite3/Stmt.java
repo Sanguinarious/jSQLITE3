@@ -41,137 +41,137 @@ public class Stmt implements AutoCloseable {
 		this.sql = sql;
 	}
 	
-	public void bindInt(int column, int i) throws Exception {
+	public void bindInt(int column, int i) throws SQLite3Exception {
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		int err = sqlite.sqlite3_bind_int(sqlite3_stmt, column, i);
 		if(err != sqlite3_errors.SQLITE_OK) {
 			if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
-			throw new Exception(sqlite.sqlite3_errstr(err)+" :> "+sql);
+			throw new SQLite3Exception(sqlite, err, sql);
 		}
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
 	}
 	
-	public void bindLong(int column, long l) throws Exception {
+	public void bindLong(int column, long l) throws SQLite3Exception {
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		int err = sqlite.sqlite3_bind_int64(sqlite3_stmt, column, l);
 		if(err != sqlite3_errors.SQLITE_OK) {
 			if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
-			throw new Exception(sqlite.sqlite3_errstr(err)+" :> "+sql);
+			throw new SQLite3Exception(sqlite, err, sql);
 		}
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
 	}
 	
-	public void bindDouble(int column, double d) throws Exception {
+	public void bindDouble(int column, double d) throws SQLite3Exception {
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		int err = sqlite.sqlite3_bind_double(sqlite3_stmt, column, d);
 		if(err != sqlite3_errors.SQLITE_OK) {
 			if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
-			throw new Exception(sqlite.sqlite3_errstr(err)+" :> "+sql);
+			throw new SQLite3Exception(sqlite, err, sql);
 		}
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
 	}
 	
-	public void bindText(int column, String s) throws Exception {
+	public void bindText(int column, String s) throws SQLite3Exception {
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		int err = sqlite.sqlite3_bind_text(sqlite3_stmt, column, s, -1, sqlite3_params.SQLITE_TRANSIENT);
 		if(err != sqlite3_errors.SQLITE_OK) {
 			if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
-			throw new Exception(sqlite.sqlite3_errstr(err)+" :> "+sql);
+			throw new SQLite3Exception(sqlite, err, sql);
 		}
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
 	}
 	
-	public void bindText16(int column, String s) throws Exception {
+	public void bindText16(int column, String s) throws SQLite3Exception {
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		int err = sqlite.sqlite3_bind_text16(sqlite3_stmt, column, new WString(s), -1, sqlite3_params.SQLITE_TRANSIENT);
 		if(err != sqlite3_errors.SQLITE_OK) {
 			if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
-			throw new Exception(sqlite.sqlite3_errstr(err)+" :> "+sql);
+			throw new SQLite3Exception(sqlite, err, sql);
 		}
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
 	}
 	
-	public void bindBlob(int column, byte[] b) throws Exception {
+	public void bindBlob(int column, byte[] b) throws SQLite3Exception {
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		Pointer in = new Memory(b.length);
 		in.write(0, b, 0, b.length);
 		int err = sqlite.sqlite3_bind_blob(sqlite3_stmt, column, in, b.length, sqlite3_params.SQLITE_TRANSIENT);
 		if(err != sqlite3_errors.SQLITE_OK) {
 			if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
-			throw new Exception(sqlite.sqlite3_errstr(err)+" :> "+sql);
+			throw new SQLite3Exception(sqlite, err, sql);
 		}
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
 	}
 	
-	public void bindZeroBlob(int column, int len) throws Exception {
+	public void bindZeroBlob(int column, int len) throws SQLite3Exception {
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		int err = sqlite.sqlite3_bind_zeroblob(sqlite3_stmt, column, len);
 		if(err != sqlite3_errors.SQLITE_OK) {
 			if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
-			throw new Exception(sqlite.sqlite3_errstr(err)+" :> "+sql);
+			throw new SQLite3Exception(sqlite, err, sql);
 		}
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
 	}
 	
-	public void bindNull(int column) throws Exception {
+	public void bindNull(int column) throws SQLite3Exception {
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		int err = sqlite.sqlite3_bind_null(sqlite3_stmt, column);
 		if(err != sqlite3_errors.SQLITE_OK) {
 			if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
-			throw new Exception(sqlite.sqlite3_errstr(err)+" :> "+sql);
+			throw new SQLite3Exception(sqlite, err, sql);
 		}
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
 	}
 	
-	public int columnInt(int column) throws Exception {
+	public int columnInt(int column) throws SQLite3Exception {
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		if(sqlite.sqlite3_column_type(sqlite3_stmt, column) != sqlite3_params.SQLITE_INTEGER)
-			throw new Exception("Stmt.columnInt expected INTEGER");
+			throw new SQLite3Exception("Stmt.columnInt expected INTEGER");
 		int ret = sqlite.sqlite3_column_int(sqlite3_stmt, column);
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
 		return ret;
 	}
 	
-	public long columnLong(int column) throws Exception {
+	public long columnLong(int column) throws SQLite3Exception {
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		if(sqlite.sqlite3_column_type(sqlite3_stmt, column) != sqlite3_params.SQLITE_INTEGER)
-			throw new Exception("Stmt.columnLong expected INTEGER");
+			throw new SQLite3Exception("Stmt.columnLong expected INTEGER");
 		long ret = sqlite.sqlite3_column_int64(sqlite3_stmt, column);
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
 		return ret;
 	}
 	
-	public Double columnDouble(int column) throws Exception {
+	public Double columnDouble(int column) throws SQLite3Exception {
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		if(sqlite.sqlite3_column_type(sqlite3_stmt, column) != sqlite3_params.SQLITE_FLOAT)
-			throw new Exception("Stmt.columnDouble expected FLOAT");
+			throw new SQLite3Exception("Stmt.columnDouble expected FLOAT");
 		double ret = sqlite.sqlite3_column_double(sqlite3_stmt, column);
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
 		return ret;
 	}
 	
-	public String columnString(int column) throws Exception {
+	public String columnString(int column) throws SQLite3Exception {
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		if(sqlite.sqlite3_column_type(sqlite3_stmt, column) != sqlite3_params.SQLITE_TEXT)
-			throw new Exception("Stmt.columnString expected TEXT");
+			throw new SQLite3Exception("Stmt.columnString expected TEXT");
 		String ret = sqlite.sqlite3_column_text(sqlite3_stmt, column);
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
 		return ret;
 	}
 	
-	public String columnString16(int column) throws Exception {
+	public String columnString16(int column) throws SQLite3Exception {
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		if(sqlite.sqlite3_column_type(sqlite3_stmt, column) != sqlite3_params.SQLITE_TEXT)
-			throw new Exception("Stmt.columnString expected TEXT");
+			throw new SQLite3Exception("Stmt.columnString expected TEXT");
 		String ret = new String(sqlite.sqlite3_column_text16(sqlite3_stmt, column).toString());
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
 		return ret;
 	}
 	
-	public byte[] columnBlob(int column) throws Exception {
+	public byte[] columnBlob(int column) throws SQLite3Exception {
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		if(sqlite.sqlite3_column_type(sqlite3_stmt, column) != sqlite3_params.SQLITE_BLOB)
-			throw new Exception("Stmt.columnString expected BLOB");
+			throw new SQLite3Exception("Stmt.columnString expected BLOB");
 		Pointer p = sqlite.sqlite3_column_blob(sqlite3_stmt,column);
 		int len = sqlite.sqlite3_column_bytes(sqlite3_stmt, column);
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
@@ -179,10 +179,10 @@ public class Stmt implements AutoCloseable {
 		
 	}
 	
-	public void columnNull(int column) throws Exception {
+	public void columnNull(int column) throws SQLite3Exception {
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		if(sqlite.sqlite3_column_type(sqlite3_stmt, column) != sqlite3_params.SQLITE_NULL)
-			throw new Exception("Stmt.columnNull Expected NULL");
+			throw new SQLite3Exception("Stmt.columnNull Expected NULL");
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
 	}
 	
@@ -207,7 +207,7 @@ public class Stmt implements AutoCloseable {
 		return ret;
 	}
 	
-	public boolean step() throws Exception {
+	public boolean step() throws SQLite3Exception {
 		int err = sqlite.sqlite3_step(sqlite3_stmt);
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		if(err == sqlite3_errors.SQLITE_ROW) {
@@ -218,30 +218,30 @@ public class Stmt implements AutoCloseable {
 			return false;
 		} else {
 			if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
-			throw new Exception(sqlite.sqlite3_errstr(err)+" :> "+sql);
+			throw new SQLite3Exception(sqlite, err, sql);
 		}
 	}
 
-	public void reset() throws Exception {
+	public void reset() throws SQLite3Exception {
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		int err = sqlite.sqlite3_reset(sqlite3_stmt);
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
 		if(err != sqlite3_errors.SQLITE_OK)
-			throw new Exception(sqlite.sqlite3_errstr(err)+" :> "+sql);
+			throw new SQLite3Exception(sqlite, err, sql);
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		err = sqlite.sqlite3_clear_bindings(sqlite3_stmt);
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
 		if(err != sqlite3_errors.SQLITE_OK)
-			throw new Exception(sqlite.sqlite3_errstr(err)+" :> "+sql);
+			throw new SQLite3Exception(sqlite, err, sql);
 	}
 	
-	@Override public void close() throws Exception {
+	@Override public void close() throws SQLite3Exception {
 		int err;
 		if(sqlite3_stmt != Pointer.NULL) {
 			if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 			if((err=sqlite.sqlite3_finalize(sqlite3_stmt)) != sqlite3_errors.SQLITE_OK) {
 				if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
-				throw new Exception(sqlite.sqlite3_errstr(err)+" :> "+sql);
+				throw new SQLite3Exception(sqlite, err, sql);
 			}
 			if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
 		}

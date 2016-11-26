@@ -22,7 +22,7 @@
 
 package com.occultusterra.sqlite3;
 
-public class sqlite3_errors {
+class sqlite3_errors {
 	public final static int SQLITE_OK           =0;   /* Successful result */
 	public final static int SQLITE_ERROR        =1;   /* SQL error or missing database */
 	public final static int SQLITE_INTERNAL     =2;   /* Internal logic error in SQLite */

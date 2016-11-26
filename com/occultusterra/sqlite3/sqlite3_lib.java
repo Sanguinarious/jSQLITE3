@@ -25,7 +25,7 @@ package com.occultusterra.sqlite3;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
 
-public interface sqlite3_lib extends Library {
+interface sqlite3_lib extends Library {
 	/* Open Stuff */
 	int sqlite3_open(String filename, PointerByReference ppDb);
 	int sqlite3_open16(WString filename, PointerByReference ppDb);

@@ -22,7 +22,7 @@
 
 package com.occultusterra.sqlite3;
 
-public class sqlite3_params {
+class sqlite3_params {
 	
 	public final static int SQLITE_OPEN_READONLY         =0x00000001;  /* Ok for sqlite3_open_v2() */
 	public final static int SQLITE_OPEN_READWRITE        =0x00000002;  /* Ok for sqlite3_open_v2() */

@@ -30,25 +30,26 @@ public class SQLite3 implements AutoCloseable {
 	sqlite3_lib sqlite = (sqlite3_lib) Native.loadLibrary("sqlite3", sqlite3_lib.class);
 	Pointer sqlite3_handle = Pointer.NULL;
 	Pointer sqlite3_mutex = Pointer.NULL;
-	int err = 0;
 	
-	public SQLite3(String dbname) throws Exception {
+	public SQLite3(String dbname) throws SQLite3Exception {
 		open(dbname);
 	}
 	
-	public void open(String dbname) throws Exception {
+	public void open(String dbname) throws SQLite3Exception {
+		int err=0;
 		if(sqlite3_handle != Pointer.NULL) // If it is open, throw
-			throw new Exception("SQLite3 DB Already Opened");
+			throw new SQLite3Exception("SQLite3 DB Already Opened");
 		PointerByReference psqlite3 = new PointerByReference();
-		err = sqlite.sqlite3_open("test.db", psqlite3);
+		err = sqlite.sqlite3_open(dbname, psqlite3);
 		if(sqlite3_errors.SQLITE_OK != err)
-			throw new Exception(sqlite.sqlite3_errstr(err));
+			throw new SQLite3Exception(sqlite, err);
 		sqlite3_handle = psqlite3.getValue();
 		sqlite3_mutex = sqlite.sqlite3_mutex_alloc(sqlite3_params.SQLITE_MUTEX_FAST);
 	}
 	
 	public void close() {
 		if(sqlite3_handle != Pointer.NULL) {
+			if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 			Pointer stmt = Pointer.NULL;
 			do { // Attempt to finalize all statements before closing db
 				stmt = sqlite.sqlite3_next_stmt(sqlite3_handle, stmt);
@@ -56,6 +57,7 @@ public class SQLite3 implements AutoCloseable {
 			} while(stmt != Pointer.NULL);
 			sqlite.sqlite3_close_v2(sqlite3_handle);
 			sqlite3_handle = Pointer.NULL;
+			if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
 		}
 		if(sqlite3_mutex != Pointer.NULL) {
 			sqlite.sqlite3_mutex_free(sqlite3_mutex);
@@ -63,19 +65,15 @@ public class SQLite3 implements AutoCloseable {
 		}
 	}
 	
-	public int getLastError() {
-		return err;
-	}
-	
-	public int exec(String sql) throws Exception {
+	public int exec(String sql) throws SQLite3Exception {
 		PointerByReference psqlite3_stmt = new PointerByReference();
 		PointerByReference nully = new PointerByReference();
-		int steps=0;
+		int steps=0, err=0;
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		err = sqlite.sqlite3_prepare_v2(sqlite3_handle, sql, -1, psqlite3_stmt, nully);
 		if(sqlite3_errors.SQLITE_OK != err) {
 			if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
-			throw new Exception(sqlite.sqlite3_errstr(err));
+			throw new SQLite3Exception(sqlite, err);
 		}
 		do ++steps; while (sqlite3_errors.SQLITE_DONE != sqlite.sqlite3_step(psqlite3_stmt.getValue()));
 		sqlite.sqlite3_finalize(psqlite3_stmt.getValue());
@@ -83,28 +81,29 @@ public class SQLite3 implements AutoCloseable {
 		return steps;
 	}
 	
-	public Stmt prepare(String sql) throws Exception {
+	public Stmt prepare(String sql) throws SQLite3Exception {
 		PointerByReference psqlite3_stmt = new PointerByReference();
 		PointerByReference nully = new PointerByReference();
+		int err=0;
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_enter(sqlite3_mutex);
 		err = sqlite.sqlite3_prepare_v2(sqlite3_handle, sql, -1, psqlite3_stmt, nully);
 		if(sqlite3_errors.SQLITE_OK != err) {
 			if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
-			throw new Exception(sqlite.sqlite3_errstr(err));
+			throw new SQLite3Exception(sqlite, err);
 		}
 		if(sqlite3_mutex != Pointer.NULL) sqlite.sqlite3_mutex_leave(sqlite3_mutex);
 		return new Stmt(sqlite, psqlite3_stmt.getValue(), sql, sqlite3_handle, sqlite3_mutex);
 	}
 	
-	public void begin() throws Exception {
+	public void begin() throws SQLite3Exception {
 		exec("BEGIN EXCLUSIVE;");
 	}
 	
-	public void end() throws Exception {
+	public void end() throws SQLite3Exception {
 		try { exec("COMMIT;");
-		} catch(Exception e) {
+		} catch(SQLite3Exception e) {
 			try { exec("ROLLBACK;");
-			} catch(Exception e2) {}
+			} catch(SQLite3Exception e2) {}
 			throw e;
 		}
 	}
